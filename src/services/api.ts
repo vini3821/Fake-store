@@ -1,7 +1,8 @@
+// src/services/api.ts
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'https://fakestoreapi.com'
+    baseURL: '/api'
 });
 
 // Interceptor para adicionar o token em todas as requisições
@@ -15,20 +16,33 @@ api.interceptors.request.use(config => {
     return config;
 });
 
-export const login = async (username: string, password: string) => {
-    const validCredentials = {
-        username: 'admin123',
-        password: '123admin'
-    };
-
-    try {
-        // Verificação local em vez de chamada API
-        if (username === validCredentials.username && password === validCredentials.password) {
-            // Retorna um token simulado
-            return { token: 'token-simulado-123456' };
-        } else {
-            throw new Error('Credenciais inválidas');
+// Interceptor para tratar respostas da API
+api.interceptors.response.use(
+    response => response,
+    error => {
+        // Se receber erro 401 (não autorizado), significa que o token expirou ou é inválido
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('token');
+            // Redirecionar para login
+            window.location.href = '/login';
         }
+        return Promise.reject(error);
+    }
+);
+
+export const login = async (username: string, password: string) => {
+    try {
+        console.log('Tentando login com:', { username, password });
+        
+        const response = await api.post('/auth/login', { username, password });
+        console.log('Resposta de login:', response.data);
+        
+        // Verificar se a resposta contém um token
+        if (!response.data || !response.data.token) {
+            throw new Error('Token não recebido da API');
+        }
+        
+        return response.data;
     } catch (error) {
         console.error('Error during login:', error);
         throw error;

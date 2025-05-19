@@ -1,4 +1,5 @@
-import { useState } from 'react';
+// src/pages/Login/LoginPage.tsx
+import { useState, useEffect } from 'react';
 import {
     Box,
     Button,
@@ -14,15 +15,22 @@ import {
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { useNavigate } from 'react-router-dom';
-import { login } from '../../services/api';
+import { useAuth } from '../../contexts/AuthContext';
 
 const LoginPage = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
+    
+    const { login, loading, error, isAuthenticated } = useAuth();
+
+    // Redireciona se já estiver autenticado
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/products');
+        }
+    }, [isAuthenticated, navigate]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -30,20 +38,12 @@ const LoginPage = () => {
             return;
         }
 
-        setLoading(true);
-        setError(null);
-
         try {
-            const data = await login(username, password);
-            console.log('Login successful:', data);
-
-            localStorage.setItem('token', data.token);
-            navigate('/products');
+            await login(username, password);
+            // A navegação é feita dentro do AuthContext após login bem-sucedido
         } catch (err) {
-            console.error('Login failed:', err);
-            setError('Falha no login. Verifique suas credenciais.');
-        } finally {
-            setLoading(false);
+            console.error('Erro no submit do login:', err);
+            // O erro já é tratado no AuthContext
         }
     };
 
@@ -136,10 +136,10 @@ const LoginPage = () => {
                                 Use as credenciais:
                             </Typography>
                             <Typography variant="body2" fontWeight="bold" align="center">
-                                username: admin123
+                                username: mor_2314
                             </Typography>
                             <Typography variant="body2" fontWeight="bold" align="center">
-                                password: 123admin
+                                password: 83r5^_
                             </Typography>
                         </Box>
                     </Box>
