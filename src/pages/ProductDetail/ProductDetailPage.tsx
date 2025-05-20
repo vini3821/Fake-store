@@ -1,3 +1,5 @@
+
+
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
@@ -18,6 +20,7 @@ import {
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { fetchProductById } from '../../services/api';
+import { useAuth } from '../../contexts/AuthContext'; // Importar useAuth
 
 interface Product {
     id: number;
@@ -38,6 +41,7 @@ const ProductDetailPage = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
+    const { logout } = useAuth(); // Usar o hook useAuth para obter a função logout
 
     useEffect(() => {
         const getProductDetails = async () => {
@@ -59,9 +63,10 @@ const ProductDetailPage = () => {
         getProductDetails();
     }, [id]);
 
+    // Usar o método logout do contexto em vez da implementação direta
     const handleLogout = () => {
-        localStorage.removeItem('token');
-        navigate('/login');
+        console.log("Chamando logout do contexto de autenticação");
+        logout(); // Este método já cuida de limpar o token e navegar para a página de login
     };
 
     return (

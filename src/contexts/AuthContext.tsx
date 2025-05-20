@@ -1,4 +1,4 @@
-// src/context/AuthContext.tsx
+
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../services/api';
@@ -44,17 +44,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             console.log('Iniciando login...');
             const data = await login(username, password);
             console.log('Login bem-sucedido, dados:', data);
-            
+
             localStorage.setItem('token', data.token);
             setToken(data.token);
-            
+
             // Definir dados simulados do usuário
             const userData = {
                 id: 1,
                 username: username,
                 email: `${username}@exemplo.com`
             };
-            
+
             setUser(userData);
             setIsAuthenticated(true);
             navigate('/products');
@@ -67,23 +67,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     const handleLogout = () => {
+        // Log para debug
+        console.log('Executando logout no AuthContext...');
+
+        // Limpar token do localStorage
         localStorage.removeItem('token');
+
+        // Atualizar estados
         setToken(null);
         setUser(null);
         setIsAuthenticated(false);
-        navigate('/login');
+
+        // Log após limpeza
+        console.log('Token removido, estados redefinidos');
+
+        // Navegar para a página de login com replace: true
+        // para evitar que o usuário possa voltar para uma página protegida
+        console.log('Navegando para /login com replace: true');
+        navigate('/login', { replace: true });
     };
 
     return (
-        <AuthContext.Provider 
-            value={{ 
-                isAuthenticated, 
-                token, 
+        <AuthContext.Provider
+            value={{
+                isAuthenticated,
+                token,
                 user,
-                login: handleLogin, 
-                logout: handleLogout, 
-                loading, 
-                error 
+                login: handleLogin,
+                logout: handleLogout,
+                loading,
+                error
             }}
         >
             {children}

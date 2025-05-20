@@ -25,6 +25,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 
 import ProfileAvatar from '../../components/ProfileAvatar';
 import { fetchProducts } from '../../services/api';
+import { useAuth } from '../../contexts/AuthContext'; // Importar useAuth
 
 interface Product {
     id: number;
@@ -42,6 +43,7 @@ const ProductsPage = () => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const navigate = useNavigate();
+    const { logout } = useAuth(); // Usar o hook useAuth para obter a função logout
 
     useEffect(() => {
         const getProducts = async () => {
@@ -61,9 +63,10 @@ const ProductsPage = () => {
         getProducts();
     }, []);
 
+    // Usar o método logout do contexto em vez da implementação direta
     const handleLogout = () => {
-        localStorage.removeItem('token');
-        navigate('/login');
+        console.log("Chamando logout do contexto de autenticação");
+        logout(); // Este método já cuida de limpar o token e navegar para a página de login
     };
 
     const handleChangePage = (event: unknown, newPage: number) => {
@@ -106,7 +109,7 @@ const ProductsPage = () => {
                     <Box sx={{ flexGrow: 1 }} />
                     <Button
                         color="inherit"
-                        onClick={handleLogout}
+                        onClick={handleLogout} // Usando a função atualizada
                         startIcon={<LogoutIcon />}
                     >
                         Logout
@@ -114,6 +117,7 @@ const ProductsPage = () => {
                 </Toolbar>
             </AppBar>
 
+            {/* Resto do código permanece igual */}
             <Box sx={{ display: 'flex', height: 'calc(100vh - 64px)' }}>
                 {/* Sidebar */}
                 <Box
